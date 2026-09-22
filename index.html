@@ -1,0 +1,1716 @@
+<title>Menu Seed Builder</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ground:    #FAFAFC;
+    --surface:   #FFFFFF;
+    --panel:     #EEEDFF;
+    --line:      #DFDDF0;
+    --line-soft: #ECEBF6;
+    --ink:       #1A1830;
+    --muted:     #5B5870;
+    --faint:     #8B88A3;
+    --accent:    #204AD4;
+    --accent-2:  #7C3AED;
+    --accent-ink:#FFFFFF;
+    --accent-bg: #E7EBFC;
+    --ok:        #0B8A63;
+    --ok-bg:     #DFF5EC;
+    --warn:      #A9600A;
+    --warn-bg:   #FBEEDB;
+    --bad:       #C42A2A;
+    --bad-bg:    #FBE3E3;
+    --code-bg:   #F4F3FB;
+    --shadow:    0 1px 2px rgba(26,24,48,.06), 0 8px 24px -16px rgba(32,74,212,.28);
+    --radius:    14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #0E1230;
+      --surface:   #171B3D;
+      --panel:     #1E2350;
+      --line:      #2C3167;
+      --line-soft: #232858;
+      --ink:       #F1F0F9;
+      --muted:     #A5A2C0;
+      --faint:     #7C79A0;
+      --accent:    #8AA6FF;
+      --accent-2:  #B593FF;
+      --accent-ink:#0E1230;
+      --accent-bg: #222A60;
+      --ok:        #4ADEA6;
+      --ok-bg:     #17372F;
+      --warn:      #F0AC55;
+      --warn-bg:   #3A2C16;
+      --bad:       #FF8A8A;
+      --bad-bg:    #3B1D24;
+      --code-bg:   #12163A;
+      --shadow:    0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #0E1230;
+    --surface:   #171B3D;
+    --panel:     #1E2350;
+    --line:      #2C3167;
+    --line-soft: #232858;
+    --ink:       #F1F0F9;
+    --muted:     #A5A2C0;
+    --faint:     #7C79A0;
+    --accent:    #8AA6FF;
+    --accent-2:  #B593FF;
+    --accent-ink:#0E1230;
+    --accent-bg: #222A60;
+    --ok:        #4ADEA6;
+    --ok-bg:     #17372F;
+    --warn:      #F0AC55;
+    --warn-bg:   #3A2C16;
+    --bad:       #FF8A8A;
+    --bad-bg:    #3B1D24;
+    --code-bg:   #12163A;
+    --shadow:    0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .wrap {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 28px 18px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* ── Masthead ─────────────────────────────────────────────── */
+  .masthead { display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: .13em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1 {
+    margin: 0; font-size: 27px; font-weight: 600; letter-spacing: -.02em;
+    line-height: 1.15; text-wrap: balance;
+  }
+  .lede { margin: 0; color: var(--muted); font-size: 14.5px; max-width: 52ch; }
+
+  /* ── Step cards ───────────────────────────────────────────── */
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .step-head {
+    display: flex; align-items: center; gap: 11px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .num {
+    flex: none;
+    width: 24px; height: 24px; border-radius: 7px;
+    display: grid; place-items: center;
+    background: var(--accent-bg); color: var(--accent);
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .step[data-state="done"] .num { background: var(--ok-bg); color: var(--ok); }
+  .step-title { flex: 1; font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+  .step-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  .chip {
+    flex: none;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: .02em;
+    padding: 3px 9px; border-radius: 999px;
+    background: var(--panel); color: var(--muted);
+    white-space: nowrap;
+  }
+  .chip.ok   { background: var(--ok-bg);   color: var(--ok); }
+  .chip.warn { background: var(--warn-bg); color: var(--warn); }
+  .chip.bad  { background: var(--bad-bg);  color: var(--bad); }
+
+  p.hint { margin: 0; color: var(--muted); font-size: 13.5px; }
+  p.hint code, .inline-code {
+    font-family: "IBM Plex Mono", monospace; font-size: 12.5px;
+    background: var(--code-bg); border-radius: 4px; padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  /* ── Code blocks ──────────────────────────────────────────── */
+  .code {
+    position: relative;
+    background: var(--code-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .code textarea {
+    display: block; width: 100%;
+    background: transparent; border: 0; resize: none;
+    color: var(--ink);
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.65;
+    padding: 12px 13px;
+    white-space: pre; overflow: auto;
+  }
+  .code textarea:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .code.tall textarea { height: 268px; }
+  .code.short textarea { height: 74px; }
+
+  /* ── Buttons ──────────────────────────────────────────────── */
+  button {
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    border-radius: 10px; border: 1px solid transparent;
+    cursor: pointer; padding: 10px 15px;
+    transition: background-color .12s ease, border-color .12s ease, color .12s ease;
+  }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn-quiet {
+    background: var(--surface); border-color: var(--line); color: var(--ink);
+    align-self: flex-start;
+  }
+  .btn-quiet:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: var(--accent-ink);
+    padding: 14px 16px; font-size: 15px;
+  }
+  .btn-primary:disabled {
+    background: var(--panel); color: var(--faint); cursor: not-allowed;
+  }
+  .btn-copied { background: var(--ok-bg) !important; border-color: var(--ok) !important; color: var(--ok) !important; }
+
+  /* ── Fields ───────────────────────────────────────────────── */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label.lab {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--faint);
+  }
+  input[type="text"], select {
+    font-family: inherit; font-size: 15px;
+    color: var(--ink); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 11px 12px; width: 100%;
+    appearance: none;
+  }
+  input[type="text"] { font-family: "IBM Plex Mono", monospace; font-size: 13.5px; letter-spacing: .01em; }
+  input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+  input.bad { border-color: var(--bad); }
+  input.good { border-color: var(--ok); }
+  select {
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: right 15px top 51%, right 10px top 51%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+  }
+  .field-note { font-size: 12.5px; color: var(--muted); }
+  .field-note.bad { color: var(--bad); }
+
+  /* ── Vocabulary chips ─────────────────────────────────────── */
+  .vocab { display: flex; flex-wrap: wrap; gap: 6px; }
+  .vocab span {
+    font-size: 12px; padding: 3px 9px; border-radius: 999px;
+    background: var(--panel); color: var(--muted);
+    border: 1px solid var(--line-soft);
+  }
+
+  /* ── File drop ────────────────────────────────────────────── */
+  .drop {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 26px 16px; text-align: center;
+    border: 1.5px dashed var(--line); border-radius: 12px;
+    background: var(--code-bg);
+    cursor: pointer;
+    transition: border-color .12s ease, background-color .12s ease;
+  }
+  .drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-bg); }
+  .drop strong { font-size: 14.5px; font-weight: 600; }
+  .drop span { font-size: 12.5px; color: var(--muted); }
+  .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .drop:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+
+  /* ── Review ───────────────────────────────────────────────── */
+  .summary {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding: 12px 14px; border-radius: 10px;
+    background: var(--panel);
+  }
+  .summary .biz { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+  .summary .counts {
+    font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .table-scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line-soft); }
+  th {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px; font-weight: 500; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--faint);
+  }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; font-family: "IBM Plex Mono", monospace; }
+  tr:last-child td { border-bottom: 0; }
+  td.unsectioned { color: var(--warn); font-style: italic; }
+
+  /* ── Diagnostics ──────────────────────────────────────────── */
+  .diag { display: flex; flex-direction: column; gap: 1px; border-radius: 10px; overflow: hidden; }
+  .diag li {
+    list-style: none;
+    display: flex; gap: 9px; align-items: flex-start;
+    padding: 9px 12px;
+    font-size: 13px; line-height: 1.45;
+  }
+  .diag.errors li { background: var(--bad-bg); color: var(--bad); }
+  .diag.warnings li { background: var(--warn-bg); color: var(--warn); }
+  .diag .where {
+    flex: none;
+    font-family: "IBM Plex Mono", monospace; font-size: 11.5px; font-weight: 600;
+    padding-top: 1px; opacity: .85; min-width: 74px;
+  }
+  ul.diag { margin: 0; padding: 0; }
+
+  .banner {
+    display: flex; gap: 9px; align-items: flex-start;
+    padding: 11px 13px; border-radius: 10px;
+    font-size: 13.5px; line-height: 1.5;
+    background: var(--panel); color: var(--muted);
+  }
+  .banner.bad { background: var(--bad-bg); color: var(--bad); }
+  .banner b { font-weight: 600; }
+
+
+  /* ── Additions for the direct-upload flow ─────────────────── */
+  input[type="password"], input[type="search"] {
+    font-family: inherit; font-size: 15px;
+    color: var(--ink); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 11px 12px; width: 100%;
+    appearance: none; -webkit-appearance: none;
+  }
+  input[type="password"] { font-family: "IBM Plex Mono", monospace; font-size: 13.5px; letter-spacing: .08em; }
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+  .row { display: flex; gap: 8px; align-items: stretch; }
+  .row > input { flex: 1; min-width: 0; }
+  .row > button { flex: none; padding: 10px 13px; }
+
+  .check {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 13.5px; color: var(--muted); cursor: pointer;
+  }
+  .check input { width: 16px; height: 16px; accent-color: var(--accent); margin: 0; }
+
+  .results { display: flex; flex-direction: column; border: 1px solid var(--line-soft); border-radius: 10px; overflow: hidden; }
+  .result {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; text-align: left;
+    background: var(--surface); color: var(--ink);
+    border: 0; border-bottom: 1px solid var(--line-soft); border-radius: 0;
+    padding: 11px 13px; font-weight: 500; font-size: 14px;
+  }
+  .result:last-child { border-bottom: 0; }
+  .result:hover, .result:focus-visible { background: var(--accent-bg); outline: none; }
+  .result .main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .result .meta { font-size: 12px; color: var(--muted); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .result .cat { flex: none; }
+
+  .bizcard {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: 10px;
+    background: var(--accent-bg); border: 1px solid transparent;
+  }
+  .bizcard .main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .bizcard .name { font-size: 15.5px; font-weight: 600; letter-spacing: -.01em; }
+  .bizcard .meta { font-size: 12.5px; color: var(--muted); }
+  .bizcard .id { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--faint); word-break: break-all; }
+  .bizcard button { flex: none; padding: 7px 11px; font-size: 13px; }
+
+  details.more { border-top: 1px solid var(--line-soft); padding-top: 12px; }
+  details.more summary {
+    cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted);
+    list-style: none; display: flex; align-items: center; gap: 6px;
+  }
+  details.more summary::-webkit-details-marker { display: none; }
+  details.more summary::before { content: '▸'; font-size: 11px; transition: transform .12s ease; }
+  details.more[open] summary::before { transform: rotate(90deg); }
+  details.more > *:not(summary) { margin-top: 12px; }
+  details.more .inner { display: flex; flex-direction: column; gap: 14px; }
+
+  .plan { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .plan div {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 10px 12px; border-radius: 10px;
+    background: var(--panel);
+  }
+  .plan b {
+    font-family: "IBM Plex Mono", monospace; font-size: 20px; font-weight: 600;
+    font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+  }
+  .plan span { font-size: 11.5px; color: var(--muted); letter-spacing: .02em; }
+  .plan div.new b { color: var(--ok); }
+  .plan div.skip b { color: var(--faint); }
+  @media (max-width: 380px) { .plan { grid-template-columns: 1fr 1fr; } }
+
+  .banner.ok { background: var(--ok-bg); color: var(--ok); }
+  .banner.warn { background: var(--warn-bg); color: var(--warn); }
+
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+
+  .foot {
+    color: var(--faint); font-size: 12.5px; line-height: 1.6;
+    border-top: 1px solid var(--line-soft); padding-top: 14px;
+  }
+  .foot code { font-family: "IBM Plex Mono", monospace; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">LifeStyl · operator tool</div>
+    <h1>Menu Seed Builder</h1>
+    <p class="lede" id="lede">
+      Upload a filled <span class="inline-code">menu-import</span> workbook straight into a
+      business's catalogue, from your phone. The file is read in this browser; only the rows
+      it contains are sent to Supabase.
+    </p>
+  </header>
+
+  <!-- ── 1 (SQL mode: find the business in the SQL editor) ──── -->
+  <section class="step" id="step1sql" hidden>
+    <div class="step-head">
+      <div class="num">1</div>
+      <div class="step-title">Find the business</div>
+      <div class="chip">SQL editor</div>
+    </div>
+    <div class="step-body">
+      <p class="hint">
+        Run this in the Supabase SQL editor. Copy the <code>id</code> and <code>category</code>
+        from the row you want — you need both in step&nbsp;2.
+      </p>
+      <div class="code short">
+        <textarea id="lookupSql" readonly spellcheck="false"></textarea>
+      </div>
+      <button class="btn-quiet" data-copy="lookupSql">Copy query</button>
+      <p class="hint">
+        Long list on a small screen? Narrow it with a name fragment instead:
+      </p>
+      <div class="code short">
+        <textarea id="lookupSql2" readonly spellcheck="false"></textarea>
+      </div>
+      <button class="btn-quiet" data-copy="lookupSql2">Copy narrowed query</button>
+    </div>
+  </section>
+
+  <!-- ── 1 (upload mode: connect to the import function) ───── -->
+  <section class="step" id="step1">
+    <div class="step-head">
+      <div class="num">1</div>
+      <div class="step-title">Connect</div>
+      <div class="chip" id="chip1">Not connected</div>
+    </div>
+    <div class="step-body">
+      <div class="field">
+        <label class="lab" for="opkey">Operator key</label>
+        <div class="row">
+          <input type="password" id="opkey" autocomplete="off" autocapitalize="off"
+                 autocorrect="off" spellcheck="false" placeholder="Paste the catalogue import key">
+          <button type="button" class="btn-quiet" id="showKey" aria-label="Show key">Show</button>
+        </div>
+        <div class="field-note" id="keyNote">
+          The <span class="inline-code">CATALOGUE_IMPORT_KEY</span> secret set on the Supabase project.
+          It is checked against the server, never stored anywhere but this device.
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="rememberKey"> Remember on this device</label>
+    </div>
+  </section>
+
+  <!-- ── 2 ─────────────────────────────────────────────────── -->
+  <section class="step" id="step2">
+    <div class="step-head">
+      <div class="num">2</div>
+      <div class="step-title">Find the business</div>
+      <div class="chip" id="chip2">Incomplete</div>
+    </div>
+    <div class="step-body">
+      <div class="field" id="searchField">
+        <label class="lab" for="q">Search by name</label>
+        <div class="row">
+          <input type="search" id="q" autocomplete="off" placeholder="e.g. istanbul" disabled>
+          <button type="button" class="btn-quiet" id="searchBtn" disabled>Search</button>
+        </div>
+        <div class="field-note" id="qNote">Connect in step 1 first.</div>
+      </div>
+      <div class="results" id="results" hidden></div>
+      <div class="bizcard" id="biz" hidden></div>
+      <div class="vocab" id="vocab" hidden></div>
+
+      <details class="more" id="manual">
+        <summary id="manualSummary">Enter the id and category by hand</summary>
+        <div class="inner">
+          <div class="field">
+            <label class="lab" for="rid">restaurant_id</label>
+            <input type="text" id="rid" inputmode="text" autocomplete="off" autocapitalize="off"
+                   autocorrect="off" spellcheck="false"
+                   placeholder="00000000-0000-0000-0000-000000000000">
+            <div class="field-note" id="ridNote">The uuid from <span class="inline-code">public.restaurants.id</span>.</div>
+          </div>
+          <div class="field">
+            <label class="lab" for="cat">category</label>
+            <select id="cat">
+              <option value="">Choose the business category…</option>
+            </select>
+            <div class="field-note" id="catNote">
+              Decides which attribute vocabulary the <span class="inline-code">dietary_tags</span> column is checked
+              against, and is asserted against the live row before anything is inserted.
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── 3 ─────────────────────────────────────────────────── -->
+  <section class="step" id="step3">
+    <div class="step-head">
+      <div class="num">3</div>
+      <div class="step-title">Choose the workbook</div>
+      <div class="chip" id="chip3">No file</div>
+    </div>
+    <div class="step-body">
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        <strong id="dropTitle">Tap to choose a .xlsx</strong>
+        <span id="dropSub">Files, iCloud Drive, Google Drive, or a mail attachment</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- ── 4 ─────────────────────────────────────────────────── -->
+  <section class="step" id="step4">
+    <div class="step-head">
+      <div class="num">4</div>
+      <div class="step-title" id="step4Title">Review and upload</div>
+      <div class="chip" id="chip4">Waiting</div>
+    </div>
+    <div class="step-body" id="reviewBody">
+      <div class="banner" id="idleBanner">Pick a workbook in step 3 and the sections, items and any problems show up here.</div>
+    </div>
+  </section>
+
+  <p class="foot">
+    Re-runnable either way: sections and items that already exist under this business
+    with the same name are skipped, so running it twice inserts nothing the second time.
+    Nothing is ever updated — change existing rows in the app.
+    Same rules as <code>tools/menu-import/xlsx_to_sql.py</code>.
+  </p>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ── Where the uploads go ───────────────────────────────────────────────────
+  // The import-catalogue edge function (supabase/functions/import-catalogue).
+  // Where THIS page is hosted matters: a claude.ai artifact ships with
+  // `connect-src 'self'` and can never reach this URL, and Supabase itself
+  // (functions and Storage alike) rewrites any HTML it serves to text/plain
+  // under a sandbox CSP. It has to live on an ordinary static host.
+  var IMPORT_URL = 'https://lcsxqnqyzegbplyrgjgk.supabase.co/functions/v1/import-catalogue';
+  var KEY_STORAGE = 'menu-import-operator-key';
+
+  // On claude.ai the page cannot call the function at all, so it runs in SQL
+  // mode: same workbook checks, but the output is a seed to paste into the
+  // Supabase SQL editor (which works fine from a phone browser).
+  var SQL_ONLY = /(^|\.)claude\.ai$/i.test(location.hostname);
+
+  // ── Business categories ────────────────────────────────────────────────────
+  // Mirrored from lib/config/business-categories.ts. `attrs` is keyed by
+  // catalogue mode because every category in a mode offers the same list.
+  var CATEGORIES = [
+    { l: 'Restaurant',             h: 'Eat & Drink',              m: 'menu' },
+    { l: 'Café',                   h: 'Eat & Drink',              m: 'menu' },
+    { l: 'Bakery & Dessert',       h: 'Eat & Drink',              m: 'menu' },
+    { l: 'Bar / Pub',              h: 'Eat & Drink',              m: 'menu' },
+    { l: 'Juice & Smoothie Bar',   h: 'Eat & Drink',              m: 'menu' },
+    { l: 'Ice Cream',              h: 'Eat & Drink',              m: 'menu' },
+    { l: 'Food Truck',             h: 'Eat & Drink',              m: 'menu' },
+    { l: 'Nail Salon',             h: 'Beauty & Grooming',        m: 'services' },
+    { l: 'Hair Salon',             h: 'Beauty & Grooming',        m: 'services' },
+    { l: 'Barbershop',             h: 'Beauty & Grooming',        m: 'services' },
+    { l: 'Spa',                    h: 'Beauty & Grooming',        m: 'services' },
+    { l: 'Lash & Brow Bar',        h: 'Beauty & Grooming',        m: 'services' },
+    { l: 'Waxing / Laser',         h: 'Beauty & Grooming',        m: 'services' },
+    { l: 'Massage',                h: 'Beauty & Grooming',        m: 'services' },
+    { l: 'Skin Clinic',            h: 'Beauty & Grooming',        m: 'services' },
+    { l: 'Tattoo & Piercing',      h: 'Beauty & Grooming',        m: 'services' },
+    { l: 'Gym',                    h: 'Fitness & Wellness',       m: 'classes' },
+    { l: 'Yoga Studio',            h: 'Fitness & Wellness',       m: 'classes' },
+    { l: 'Pilates / Barre',        h: 'Fitness & Wellness',       m: 'classes' },
+    { l: 'Boxing & Martial Arts',  h: 'Fitness & Wellness',       m: 'classes' },
+    { l: 'Climbing Gym',           h: 'Fitness & Wellness',       m: 'classes' },
+    { l: 'Dance Studio',           h: 'Fitness & Wellness',       m: 'classes' },
+    { l: 'Physio / Chiro',         h: 'Fitness & Wellness',       m: 'classes' },
+    { l: 'Pool Bar',               h: 'Nightlife & Entertainment', m: 'rates' },
+    { l: 'Karaoke',                h: 'Nightlife & Entertainment', m: 'rates' },
+    { l: 'Bowling',                h: 'Nightlife & Entertainment', m: 'rates' },
+    { l: 'Arcade / Game Bar',      h: 'Nightlife & Entertainment', m: 'rates' },
+    { l: 'Lounge',                 h: 'Nightlife & Entertainment', m: 'rates' },
+    { l: 'Escape Room',            h: 'Nightlife & Entertainment', m: 'rates' },
+    { l: 'Mini Golf',              h: 'Nightlife & Entertainment', m: 'rates' },
+    { l: 'Axe Throwing',           h: 'Nightlife & Entertainment', m: 'rates' },
+    { l: 'Record Store',           h: 'Shops',                    m: 'stock' },
+    { l: 'Bookstore',              h: 'Shops',                    m: 'stock' },
+    { l: 'Clothing / Thrift',      h: 'Shops',                    m: 'stock' },
+    { l: 'Florist',                h: 'Shops',                    m: 'stock' },
+    { l: 'Gift Shop',              h: 'Shops',                    m: 'stock' },
+    { l: 'Jewellery',              h: 'Shops',                    m: 'stock' },
+    { l: 'Specialty Grocery',      h: 'Shops',                    m: 'stock' },
+    { l: 'Pet Supplies',           h: 'Shops',                    m: 'stock' },
+    { l: 'Car Wash & Detailing',   h: 'Auto & Home Services',     m: 'services' },
+    { l: 'Auto Repair',            h: 'Auto & Home Services',     m: 'services' },
+    { l: 'Tire Shop',              h: 'Auto & Home Services',     m: 'services' },
+    { l: 'Phone Repair',           h: 'Auto & Home Services',     m: 'services' },
+    { l: 'Dry Cleaning',           h: 'Auto & Home Services',     m: 'services' },
+    { l: 'Cleaning Service',       h: 'Auto & Home Services',     m: 'services' },
+    { l: 'Golf & Driving Range',   h: 'Experiences & Leisure',    m: 'rates' },
+    { l: 'Skating Rink',           h: 'Experiences & Leisure',    m: 'rates' },
+    { l: 'Pottery / Paint Studio', h: 'Experiences & Leisure',    m: 'rates' },
+    { l: 'Photo Studio',           h: 'Experiences & Leisure',    m: 'rates' },
+    { l: 'Bathhouse',              h: 'Experiences & Leisure',    m: 'rates' },
+    { l: 'Groomer',                h: 'Pet Services',             m: 'services' },
+    { l: 'Daycare & Boarding',     h: 'Pet Services',             m: 'services' },
+    { l: 'Trainer',                h: 'Pet Services',             m: 'services' },
+    { l: 'Play Café',              h: 'Kids & Family',            m: 'classes' },
+    { l: 'Activity Centre',        h: 'Kids & Family',            m: 'classes' },
+    { l: 'Tutoring',               h: 'Kids & Family',            m: 'classes' }
+  ];
+
+  var ATTRS = {
+    menu:     ['Vegetarian', 'Vegan', 'Gluten-free', 'Dairy-free', 'Nut-free', 'Halal', 'Kosher', 'Spicy', 'Kids OK', 'Add-on'],
+    services: ['30 min', '45 min', '60 min', '90 min', 'Non-toxic', 'Appointment', 'Add-on', 'Vegan', 'Gluten-free', 'Kids OK'],
+    classes:  ['Beginner', 'Intermediate', 'Advanced', 'Drop-in', '45 min', '60 min', 'Equipment provided', 'Vegan', 'Gluten-free', 'Kids OK', 'Add-on'],
+    rates:    ['Per hour', 'Per person', '19+', 'Peak', 'Off-peak', 'Free rental', 'Vegan', 'Gluten-free', 'Kids OK', 'Add-on'],
+    stock:    ['New', 'Used · NM', 'Used · VG', 'Limited', 'Trade-in', 'Pre-order', 'Vegan', 'Gluten-free', 'Kids OK', 'Add-on']
+  };
+
+  var FIRST_DATA_ROW = 3; // row 1 = headers, row 2 = grey hint text
+  var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ── SQL mode ───────────────────────────────────────────────────────────────
+  $('lookupSql').value =
+    'select id, name, category\n' +
+    'from public.restaurants\n' +
+    'order by name;';
+  $('lookupSql2').value =
+    'select id, name, category\n' +
+    'from public.restaurants\n' +
+    "where name ilike '%istanbul%'\n" +
+    'order by name;';
+
+  if (SQL_ONLY) {
+    $('step1sql').hidden = false;
+    $('step1').hidden = true;
+    $('searchField').hidden = true;
+    $('results').hidden = true;
+    $('manual').open = true;
+    $('manualSummary').textContent = 'Paste the id and category from step 1';
+    $('step4Title').textContent = 'Review and copy';
+    $('lede').innerHTML =
+      'Turn a filled <span class="inline-code">menu-import</span> workbook into a re-runnable SQL seed, ' +
+      'on your phone. The file is read in this browser and never uploaded anywhere — you paste the ' +
+      'result into the Supabase SQL editor.';
+  }
+
+  // ── Copy ───────────────────────────────────────────────────────────────────
+  function flash(btn, ok) {
+    if (!btn) return;
+    var was = btn.dataset.label || btn.textContent;
+    btn.dataset.label = was;
+    btn.textContent = ok ? 'Copied' : 'Select it and copy';
+    btn.classList.toggle('btn-copied', ok);
+    setTimeout(function () {
+      btn.textContent = was;
+      btn.classList.remove('btn-copied');
+    }, 1600);
+  }
+
+  function copyText(text, btn) {
+    var done = function (ok) { flash(btn, ok); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { legacy(); });
+    } else {
+      legacy();
+    }
+    function legacy() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { ta.setSelectionRange(0, text.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      ta.remove();
+      done(ok);
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-copy]');
+    if (!btn) return;
+    var src = $(btn.dataset.copy);
+    if (src) copyText(src.value, btn);
+  });
+
+  // ── Category select ────────────────────────────────────────────────────────
+  (function buildSelect() {
+    var sel = $('cat');
+    var groups = {};
+    var order = [];
+    CATEGORIES.forEach(function (c) {
+      if (!groups[c.h]) { groups[c.h] = []; order.push(c.h); }
+      groups[c.h].push(c);
+    });
+    order.forEach(function (h) {
+      var og = document.createElement('optgroup');
+      og.label = h;
+      groups[h].forEach(function (c) {
+        var o = document.createElement('option');
+        o.value = c.l;
+        o.textContent = c.l;
+        og.appendChild(o);
+      });
+      sel.appendChild(og);
+    });
+  })();
+
+  function modeFor(label) {
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      if (CATEGORIES[i].l === label) return CATEGORIES[i].m;
+    }
+    return null;
+  }
+  function attributesFor(label) {
+    var m = modeFor(label);
+    return m ? ATTRS[m] : [];
+  }
+
+  // ── XLSX reading ───────────────────────────────────────────────────────────
+  var RELS_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+
+  function xml(text) {
+    var doc = new DOMParser().parseFromString(text, 'application/xml');
+    if (doc.getElementsByTagName('parsererror').length) throw new Error('Could not read the workbook XML.');
+    return doc;
+  }
+
+  function colToIndex(letters) {
+    var n = 0;
+    for (var i = 0; i < letters.length; i++) n = n * 26 + (letters.charCodeAt(i) - 64);
+    return n;
+  }
+
+  function readSheetGrid(doc, shared) {
+    var grid = new Map();
+    var cells = doc.getElementsByTagName('c');
+    for (var i = 0; i < cells.length; i++) {
+      var c = cells[i];
+      var ref = c.getAttribute('r');
+      var m = ref && /^([A-Z]+)(\d+)$/.exec(ref);
+      if (!m) continue;
+      var col = colToIndex(m[1]);
+      var row = parseInt(m[2], 10);
+      var t = c.getAttribute('t');
+      var value = null;
+
+      if (t === 'inlineStr') {
+        var is = c.getElementsByTagName('is')[0];
+        if (is) {
+          var parts = is.getElementsByTagName('t');
+          var s = '';
+          for (var j = 0; j < parts.length; j++) s += parts[j].textContent;
+          value = s;
+        }
+      } else {
+        var v = c.getElementsByTagName('v')[0];
+        if (!v) continue;
+        var raw = v.textContent;
+        if (t === 's') {
+          value = shared[parseInt(raw, 10)];
+          if (value === undefined) value = null;
+        } else if (t === 'b') {
+          value = raw === '1';
+        } else if (t === 'e') {
+          value = null;
+        } else if (t === 'str') {
+          value = raw;
+        } else {
+          var num = Number(raw);
+          value = isNaN(num) ? raw : num;
+        }
+      }
+
+      if (value === null || value === '') continue;
+      if (!grid.has(row)) grid.set(row, new Map());
+      grid.get(row).set(col, value);
+    }
+    return grid;
+  }
+
+  function maxRow(grid) {
+    var max = 0;
+    grid.forEach(function (_, r) { if (r > max) max = r; });
+    return max;
+  }
+
+  function cellAt(grid, row, col) {
+    var r = grid.get(row);
+    if (!r) return null;
+    var v = r.get(col);
+    if (v === undefined) return null;
+    if (typeof v === 'string') {
+      v = v.trim();
+      return v === '' ? null : v;
+    }
+    return v;
+  }
+
+  function rowHasData(grid, row, fromCol, toCol) {
+    for (var c = fromCol; c <= toCol; c++) {
+      if (cellAt(grid, row, c) !== null) return true;
+    }
+    return false;
+  }
+
+  function loadWorkbook(file) {
+    return JSZip.loadAsync(file).then(function (zip) {
+      function text(path) {
+        var f = zip.file(path);
+        return f ? f.async('string') : Promise.resolve(null);
+      }
+      return Promise.all([text('xl/workbook.xml'), text('xl/_rels/workbook.xml.rels'), text('xl/sharedStrings.xml')])
+        .then(function (parts) {
+          if (!parts[0] || !parts[1]) throw new Error('That does not look like an .xlsx workbook.');
+          var wbDoc = xml(parts[0]);
+          var relDoc = xml(parts[1]);
+
+          var rels = {};
+          var rl = relDoc.getElementsByTagName('Relationship');
+          for (var i = 0; i < rl.length; i++) rels[rl[i].getAttribute('Id')] = rl[i].getAttribute('Target');
+
+          var shared = [];
+          if (parts[2]) {
+            var ssDoc = xml(parts[2]);
+            var sis = ssDoc.getElementsByTagName('si');
+            for (var s = 0; s < sis.length; s++) {
+              var ts = sis[s].getElementsByTagName('t');
+              var str = '';
+              for (var k = 0; k < ts.length; k++) {
+                if (ts[k].parentNode && ts[k].parentNode.nodeName === 'rPh') continue;
+                str += ts[k].textContent;
+              }
+              shared.push(str);
+            }
+          }
+
+          var paths = {};
+          var sheets = wbDoc.getElementsByTagName('sheet');
+          for (var n = 0; n < sheets.length; n++) {
+            var name = sheets[n].getAttribute('name');
+            var rid = sheets[n].getAttributeNS(RELS_NS, 'id') || sheets[n].getAttribute('r:id');
+            var target = rels[rid];
+            if (!name || !target) continue;
+            if (target.charAt(0) === '/') target = target.slice(1);
+            else target = 'xl/' + target.replace(/^\.\//, '');
+            paths[name] = target;
+          }
+
+          var wanted = ['Restaurant', 'Sections', 'Items'];
+          var missing = wanted.filter(function (w) { return !paths[w]; });
+          if (missing.length) {
+            throw new Error('The workbook is missing the ' + missing.join(', ') + ' sheet' +
+              (missing.length > 1 ? 's' : '') + '. Start from menu-import-template.xlsx.');
+          }
+
+          return Promise.all(wanted.map(function (w) { return zip.file(paths[w]).async('string'); }))
+            .then(function (xmls) {
+              return {
+                Restaurant: readSheetGrid(xml(xmls[0]), shared),
+                Sections:   readSheetGrid(xml(xmls[1]), shared),
+                Items:      readSheetGrid(xml(xmls[2]), shared)
+              };
+            });
+        });
+    });
+  }
+
+  // ── Value parsing (ported from xlsx_to_sql.py) ─────────────────────────────
+  function parseBool(value, dflt, where, errors) {
+    if (value === null || value === '') return dflt;
+    if (typeof value === 'boolean') return value;
+    var s = String(value).trim().toLowerCase();
+    if (s === 'true' || s === 't' || s === 'yes' || s === 'y' || s === '1') return true;
+    if (s === 'false' || s === 'f' || s === 'no' || s === 'n' || s === '0') return false;
+    errors.push({ where: where, message: 'expected TRUE or FALSE, got "' + value + '"' });
+    return dflt;
+  }
+
+  // String-based half-up rounding to 2dp. Doing this on a JS float would make
+  // 1.005 land on 1.00 — a spreadsheet price must round the way a person expects.
+  function quantize2(str) {
+    var m = /^(-?)(\d*)(?:\.(\d*))?$/.exec(str);
+    if (!m || (m[2] === '' && (m[3] === undefined || m[3] === ''))) return null;
+    var sign = m[1], int = m[2] || '0', frac = m[3] || '';
+    if (frac.length <= 2) return sign + int + '.' + (frac + '00').slice(0, 2);
+    var big = BigInt(int + frac.slice(0, 2));
+    if (frac.charCodeAt(2) - 48 >= 5) big += 1n;
+    var s = big.toString();
+    while (s.length < 3) s = '0' + s;
+    return sign + s.slice(0, -2) + '.' + s.slice(-2);
+  }
+
+  function parsePrice(value, where, errors) {
+    if (value === null || value === '') {
+      errors.push({ where: where, message: 'price is required' });
+      return null;
+    }
+    var s = String(value).trim().replace(/\$/g, '').replace(/,/g, '');
+    var n = Number(s);
+    if (s === '' || isNaN(n)) {
+      errors.push({ where: where, message: 'price "' + value + '" is not a number' });
+      return null;
+    }
+    if (n < 0) {
+      errors.push({ where: where, message: 'price "' + value + '" is negative' });
+      return null;
+    }
+    if (n >= 100000000) {
+      errors.push({ where: where, message: 'price "' + value + '" exceeds numeric(10,2)' });
+      return null;
+    }
+    var q = quantize2(s);
+    if (q === null) {
+      errors.push({ where: where, message: 'price "' + value + '" is not a number' });
+      return null;
+    }
+    return q;
+  }
+
+  function parseTags(value, where, warnings, lookup, category) {
+    if (value === null || value === '') return [];
+    var raw = String(value).replace(/;/g, ',').split(',');
+    var out = [];
+    raw.forEach(function (t) {
+      t = t.trim();
+      if (!t) return;
+      var canon = lookup[t.toLowerCase()];
+      if (canon === undefined) {
+        warnings.push({
+          where: where,
+          message: '"' + t + '" is not in the ' + category + ' vocabulary — it will be stored, ' +
+                   'but the customer app will not render it as a chip'
+        });
+        canon = t;
+      }
+      if (out.indexOf(canon) === -1) out.push(canon);
+    });
+    return out;
+  }
+
+  function readRestaurantSheet(grid) {
+    var values = {};
+    var last = maxRow(grid);
+    for (var r = 1; r <= last; r++) {
+      var key = cellAt(grid, r, 1);
+      if (typeof key === 'string') values[key.trim().toLowerCase()] = cellAt(grid, r, 2);
+    }
+    return values;
+  }
+
+  function readSections(grid, errors) {
+    var out = [];
+    var seen = {};
+    var last = maxRow(grid);
+    for (var r = FIRST_DATA_ROW; r <= last; r++) {
+      var name = cellAt(grid, r, 1);
+      if (name === null) continue;
+      name = String(name);
+      var where = 'Sections!A' + r;
+      if (seen[name.toLowerCase()]) {
+        errors.push({ where: where, message: 'duplicate section name "' + name + '"' });
+        continue;
+      }
+      seen[name.toLowerCase()] = true;
+
+      var order = cellAt(grid, r, 2);
+      if (order === null) {
+        order = out.length + 1;
+      } else if (typeof order === 'number') {
+        order = Math.trunc(order);
+      } else if (/^-?\d+$/.test(String(order).trim())) {
+        order = parseInt(String(order).trim(), 10);
+      } else {
+        errors.push({ where: 'Sections!B' + r, message: 'display_order "' + order + '" is not an integer' });
+        continue;
+      }
+      out.push({ name: name, order: order });
+    }
+    return out;
+  }
+
+  function readItems(grid, sectionNames, category, errors, warnings) {
+    var out = [];
+    var lowerSections = {};
+    sectionNames.forEach(function (s) { lowerSections[s.toLowerCase()] = s; });
+    var tagLookup = {};
+    attributesFor(category).forEach(function (t) { tagLookup[t.toLowerCase()] = t; });
+
+    var last = maxRow(grid);
+    for (var r = FIRST_DATA_ROW; r <= last; r++) {
+      var name = cellAt(grid, r, 2);
+      if (name === null) {
+        // A row with a price but no name is a typo, not a blank row.
+        if (rowHasData(grid, r, 1, 8)) {
+          errors.push({ where: 'Items!B' + r, message: 'this row has data but no item name' });
+        }
+        continue;
+      }
+      var where = 'Items ' + r;
+      var section = cellAt(grid, r, 1);
+      if (section !== null) {
+        var canon = lowerSections[String(section).trim().toLowerCase()];
+        if (canon === undefined) {
+          errors.push({ where: 'Items!A' + r, message: 'section "' + section + '" is not on the Sections sheet' });
+          continue;
+        }
+        section = canon;
+      } else {
+        section = null;
+        warnings.push({ where: where, message: 'no section — this item will be unsectioned' });
+      }
+
+      var price = parsePrice(cellAt(grid, r, 4), 'Items!D' + r, errors);
+      if (price === null) continue;
+
+      out.push({
+        row: r,
+        section: section,
+        name: String(name),
+        description: cellAt(grid, r, 3),
+        price: price,
+        photo_url: cellAt(grid, r, 5),
+        tags: parseTags(cellAt(grid, r, 6), where, warnings, tagLookup, category),
+        is_popular: parseBool(cellAt(grid, r, 7), false, 'Items!G' + r, errors),
+        is_available: parseBool(cellAt(grid, r, 8), true, 'Items!H' + r, errors)
+      });
+    }
+    return out;
+  }
+
+  // ── SQL emission ───────────────────────────────────────────────────────────
+  function q(v) { return "'" + String(v).replace(/'/g, "''") + "'"; }
+
+  function textOrNull(v) {
+    // Always cast — a VALUES column that is NULL in every row has no inferable type.
+    var s = v === null || v === undefined ? '' : String(v).trim();
+    return s === '' ? 'null::text' : q(s);
+  }
+
+  function tagsLiteral(tags) {
+    if (!tags.length) return "'{}'::text[]";
+    return 'array[' + tags.map(q).join(', ') + ']::text[]';
+  }
+
+  function comment(s) { return String(s).replace(/[\r\n]+/g, ' '); }
+
+  function buildSql(rid, rname, category, sections, items) {
+    var L = [];
+    L.push('-- Catalogue seed built by Menu Seed Builder');
+    L.push('-- Business: ' + comment(rname || '(unnamed)') + '  [' + rid + ']');
+    L.push('-- Category: ' + comment(category) + '  (attribute vocabulary used to check dietary_tags)');
+    L.push('-- ' + sections.length + ' section(s), ' + items.length + ' item(s)');
+    L.push('-- Re-runnable: existing sections/items with the same name are skipped.');
+    L.push('');
+    L.push('begin;');
+    L.push('');
+    L.push('-- Fail loudly rather than seeding an orphaned or mismatched catalogue.');
+    L.push('do $$');
+    L.push('declare');
+    L.push('  v_name     text;');
+    L.push('  v_category text;');
+    L.push('begin');
+    L.push('  select name, category into v_name, v_category');
+    L.push('  from public.restaurants');
+    L.push('  where id = ' + q(rid) + '::uuid;');
+    L.push('');
+    L.push('  if v_name is null then');
+    L.push('    raise exception ' + q('No business with id ' + rid) + ';');
+    L.push('  end if;');
+    L.push('');
+    L.push('  if v_category is distinct from ' + q(category) + ' then');
+    L.push('    raise exception ' + q('Category mismatch: % is a %, but this seed was checked against %') + ',');
+    L.push('      v_name, v_category, ' + q(category) + ';');
+    L.push('  end if;');
+    L.push('');
+    L.push('  raise notice ' + q('Seeding % (%)') + ', v_name, v_category;');
+    L.push('end $$;');
+    L.push('');
+
+    if (sections.length) {
+      L.push('-- ── Sections ─────────────────────────────────────────────────────────');
+      L.push('insert into public.menu_sections (restaurant_id, name, display_order)');
+      L.push('select v.restaurant_id, v.name, v.display_order');
+      L.push('from (values');
+      L.push(sections.map(function (s) {
+        return '  (' + q(rid) + '::uuid, ' + q(s.name) + ', ' + s.order + ')';
+      }).join(',\n'));
+      L.push(') as v(restaurant_id, name, display_order)');
+      L.push('where not exists (');
+      L.push('  select 1 from public.menu_sections s');
+      L.push('  where s.restaurant_id = v.restaurant_id and s.name = v.name');
+      L.push(');');
+      L.push('');
+    }
+
+    if (items.length) {
+      L.push('-- ── Items ────────────────────────────────────────────────────────────');
+      L.push('insert into public.menu_items');
+      L.push('  (restaurant_id, section_id, name, description, price,');
+      L.push('   photo_url, dietary_tags, is_popular, is_available)');
+      L.push('select v.restaurant_id, s.id, v.name, v.description, v.price,');
+      L.push('       v.photo_url, v.dietary_tags, v.is_popular, v.is_available');
+      L.push('from (values');
+      L.push(items.map(function (it) {
+        return '  (' + q(rid) + '::uuid, ' + textOrNull(it.section) + ', ' + q(it.name) + ', ' +
+               textOrNull(it.description) + ', ' + it.price + '::numeric(10,2), ' +
+               textOrNull(it.photo_url) + ', ' + tagsLiteral(it.tags) + ', ' +
+               (it.is_popular ? 'true' : 'false') + ', ' + (it.is_available ? 'true' : 'false') + ')';
+      }).join(',\n'));
+      L.push(') as v(restaurant_id, section_name, name, description, price,');
+      L.push('       photo_url, dietary_tags, is_popular, is_available)');
+      L.push('left join public.menu_sections s');
+      L.push('  on s.restaurant_id = v.restaurant_id and s.name = v.section_name');
+      L.push('where not exists (');
+      L.push('  select 1 from public.menu_items m');
+      L.push('  where m.restaurant_id = v.restaurant_id');
+      L.push('    and m.name = v.name');
+      L.push('    and m.section_id is not distinct from s.id');
+      L.push(');');
+      L.push('');
+    }
+
+    L.push('-- What landed. An empty section, or a non-zero unsectioned count you');
+    L.push('-- did not expect, means an item did not map to the section you wanted.');
+    L.push('select coalesce(s.display_order, 9999) as ord,');
+    L.push("       coalesce(s.name, '(no section)')  as section,");
+    L.push('       count(m.id)                       as items');
+    L.push('from public.menu_sections s');
+    L.push('full join public.menu_items m');
+    L.push('  on m.section_id = s.id and m.restaurant_id = ' + q(rid) + '::uuid');
+    L.push('where s.restaurant_id = ' + q(rid) + '::uuid');
+    L.push('   or m.restaurant_id = ' + q(rid) + '::uuid');
+    L.push('group by 1, 2');
+    L.push('order by 1;');
+    L.push('');
+    L.push('commit;');
+    L.push('');
+    return L.join('\n');
+  }
+
+  // ── Talking to the function ────────────────────────────────────────────────
+  function api(body) {
+    return fetch(IMPORT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-operator-key': $('opkey').value.trim()
+      },
+      body: JSON.stringify(body)
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok) {
+          var err = new Error(data.message || ('Request failed (' + res.status + ')'));
+          err.status = res.status;
+          err.code = data.error;
+          err.details = data.details || [];
+          throw err;
+        }
+        return data;
+      });
+    }, function () {
+      var err = new Error('Could not reach Supabase — check the connection and try again.');
+      err.status = 0;
+      throw err;
+    });
+  }
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  var connected = false;    // last ping with the current key succeeded
+  var checkingKey = null;   // debounce timer
+  var biz = null;           // { id, name, category, address } chosen in step 2
+  var rawSheets = null;
+  var parsed = null;        // { name, sections, items, errors, warnings }
+  var fatal = null;         // string
+  var preview = null;       // { status: 'loading'|'ready'|'error', data|message, signature }
+  var upload = null;        // { status: 'busy'|'done'|'error', data|message }
+
+  function setChip(el, text, cls) {
+    el.textContent = text;
+    el.className = 'chip' + (cls ? ' ' + cls : '');
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function validId() { return UUID_RE.test($('rid').value.trim()); }
+  function validCat() { return $('cat').value !== ''; }
+
+  // ── Step 1: operator key ───────────────────────────────────────────────────
+  function readStoredKey() {
+    try { return localStorage.getItem(KEY_STORAGE) || ''; } catch (e) { return ''; }
+  }
+  function storeKey(value) {
+    try {
+      if (value) localStorage.setItem(KEY_STORAGE, value);
+      else localStorage.removeItem(KEY_STORAGE);
+    } catch (e) {}
+  }
+
+  function checkKey() {
+    var key = $('opkey').value.trim();
+    connected = false;
+    if (!key) {
+      setChip($('chip1'), 'Not connected', '');
+      $('step1').dataset.state = '';
+      $('keyNote').className = 'field-note';
+      $('keyNote').innerHTML = 'The <span class="inline-code">CATALOGUE_IMPORT_KEY</span> secret set on the Supabase project. ' +
+        'It is checked against the server, never stored anywhere but this device.';
+      renderStep2();
+      render();
+      return;
+    }
+    setChip($('chip1'), 'Checking…', '');
+    api({ action: 'ping' }).then(function () {
+      if ($('opkey').value.trim() !== key) return; // typed past it
+      connected = true;
+      setChip($('chip1'), 'Connected', 'ok');
+      $('step1').dataset.state = 'done';
+      $('keyNote').className = 'field-note';
+      $('keyNote').textContent = 'Key accepted.';
+      if ($('rememberKey').checked) storeKey(key);
+      renderStep2();
+      render();
+    }).catch(function (err) {
+      if ($('opkey').value.trim() !== key) return;
+      setChip($('chip1'), err.status === 401 ? 'Wrong key' : 'Unreachable', 'bad');
+      $('step1').dataset.state = '';
+      $('keyNote').className = 'field-note bad';
+      $('keyNote').textContent = err.status === 503
+        ? 'The function is deployed but CATALOGUE_IMPORT_KEY is not set on the project yet.'
+        : err.message;
+      renderStep2();
+      render();
+    });
+  }
+
+  $('opkey').addEventListener('input', function () {
+    clearTimeout(checkingKey);
+    checkingKey = setTimeout(checkKey, 450);
+  });
+  $('showKey').addEventListener('click', function () {
+    var f = $('opkey');
+    var show = f.type === 'password';
+    f.type = show ? 'text' : 'password';
+    this.textContent = show ? 'Hide' : 'Show';
+  });
+  $('rememberKey').addEventListener('change', function () {
+    storeKey(this.checked && connected ? $('opkey').value.trim() : '');
+  });
+
+  // ── Step 2: business ───────────────────────────────────────────────────────
+  function selectBusiness(b) {
+    biz = b;
+    $('rid').value = b.id;
+    $('cat').value = b.category;
+    if ($('cat').value !== b.category) {
+      // A category the page does not know — keep the raw value visible so the
+      // mismatch is obvious rather than silently unselected.
+      var o = document.createElement('option');
+      o.value = b.category; o.textContent = b.category + ' (not in this page\'s list)';
+      $('cat').appendChild(o);
+      $('cat').value = b.category;
+    }
+    $('results').hidden = true;
+    $('results').innerHTML = '';
+    $('manual').open = false;
+    if (rawSheets) reparse(); else render();
+  }
+
+  function renderResults(list, term) {
+    var box = $('results');
+    if (!list.length) {
+      box.hidden = false;
+      box.innerHTML = '<div class="banner">No business matches “' + esc(term) + '”.</div>';
+      return;
+    }
+    box.hidden = false;
+    box.innerHTML = list.map(function (r, i) {
+      return '<button type="button" class="result" data-i="' + i + '">' +
+        '<span class="main"><span>' + esc(r.name) + '</span>' +
+        '<span class="meta">' + esc(r.address || '') + '</span></span>' +
+        '<span class="chip cat">' + esc(r.category) + '</span></button>';
+    }).join('');
+    Array.prototype.forEach.call(box.querySelectorAll('.result'), function (btn) {
+      btn.addEventListener('click', function () { selectBusiness(list[parseInt(btn.dataset.i, 10)]); });
+    });
+  }
+
+  function search() {
+    var term = $('q').value.trim();
+    var note = $('qNote');
+    note.className = 'field-note';
+    note.textContent = 'Searching…';
+    api({ action: 'search', q: term }).then(function (data) {
+      note.textContent = data.results.length === 25
+        ? 'Showing the first 25 — narrow the search if yours is not here.'
+        : (data.results.length + (data.results.length === 1 ? ' match' : ' matches'));
+      renderResults(data.results, term);
+    }).catch(function (err) {
+      note.className = 'field-note bad';
+      note.textContent = err.message;
+    });
+  }
+
+  $('searchBtn').addEventListener('click', search);
+  $('q').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); search(); } });
+
+  function renderStep2() {
+    $('q').disabled = !connected;
+    $('searchBtn').disabled = !connected;
+    if (SQL_ONLY) {
+      // step 1 is the lookup query; there is nothing to search here
+    } else if (!connected) {
+      $('qNote').className = 'field-note';
+      $('qNote').textContent = 'Connect in step 1 first, or enter the id by hand below.';
+    } else if ($('qNote').textContent.indexOf('Connect in step 1') === 0) {
+      $('qNote').textContent = 'Part of the name is enough.';
+    }
+
+    var rid = $('rid').value.trim();
+    var cat = $('cat').value;
+
+    // Manual edits detach the chosen business card.
+    if (biz && (biz.id !== rid || biz.category !== cat)) biz = null;
+
+    var card = $('biz');
+    if (biz) {
+      card.hidden = false;
+      card.innerHTML = '<div class="main"><span class="name">' + esc(biz.name) + '</span>' +
+        '<span class="meta">' + esc(biz.category) + (biz.address ? ' · ' + esc(biz.address) : '') + '</span>' +
+        '<span class="id">' + esc(biz.id) + '</span></div>' +
+        '<button type="button" class="btn-quiet" id="changeBiz">Change</button>';
+      $('changeBiz').addEventListener('click', function () {
+        biz = null; $('rid').value = ''; $('cat').value = '';
+        if (rawSheets) reparse(); else render();
+        $('q').focus();
+      });
+    } else {
+      card.hidden = true;
+      card.innerHTML = '';
+    }
+
+    var input = $('rid');
+    var note = $('ridNote');
+    input.classList.remove('good', 'bad');
+    note.classList.remove('bad');
+    if (rid === '') {
+      note.innerHTML = 'The uuid from <span class="inline-code">public.restaurants.id</span>.';
+    } else if (UUID_RE.test(rid)) {
+      input.classList.add('good');
+      note.textContent = 'Looks like a uuid.';
+    } else {
+      input.classList.add('bad');
+      note.classList.add('bad');
+      note.textContent = 'Not a uuid — expected 8-4-4-4-12 hex characters.';
+    }
+
+    var vocab = $('vocab');
+    if (cat) {
+      vocab.hidden = false;
+      vocab.innerHTML = '<span style="background:transparent;border-color:transparent;padding-left:0">Valid tags:</span>' +
+        attributesFor(cat).map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('');
+    } else {
+      vocab.hidden = true;
+      vocab.innerHTML = '';
+    }
+
+    var ok = validId() && validCat();
+    setChip($('chip2'), ok ? (biz ? biz.name : 'Ready') : 'Incomplete', ok ? 'ok' : '');
+    $('step2').dataset.state = ok ? 'done' : '';
+  }
+
+  $('rid').addEventListener('input', function () { if (rawSheets) reparse(); else render(); });
+  $('cat').addEventListener('change', function () { if (rawSheets) reparse(); else render(); });
+
+  // ── Step 3 → parsed rows ───────────────────────────────────────────────────
+  function reparse() {
+    upload = null;
+    if (!rawSheets) { render(); return; }
+    var errors = [], warnings = [];
+    var category = $('cat').value;
+
+    var restaurantValues = readRestaurantSheet(rawSheets.Restaurant);
+    var sections = readSections(rawSheets.Sections, errors);
+    var items = readItems(rawSheets.Items, sections.map(function (s) { return s.name; }),
+                          category, errors, warnings);
+
+    // The server's skip rule only sees rows already in the table, so same-name
+    // duplicates inside one upload would both insert. Drop them here.
+    var seen = {}, deduped = [];
+    items.forEach(function (it) {
+      var key = (it.section || '\u0000') + '\u0001' + it.name.toLowerCase();
+      if (seen[key] !== undefined) {
+        warnings.push({
+          where: 'Items ' + it.row,
+          message: '"' + it.name + '" is already listed in ' + (it.section || '(no section)') +
+                   ' at row ' + seen[key] + ' — row ' + it.row + ' is skipped'
+        });
+        return;
+      }
+      seen[key] = it.row;
+      deduped.push(it);
+    });
+
+    if (!deduped.length && !errors.length) {
+      errors.push({ where: 'Items', message: 'no item rows found — data starts on row 3, under the grey hint row' });
+    }
+
+    parsed = {
+      name: restaurantValues['restaurant_name'] ? String(restaurantValues['restaurant_name']).trim() : null,
+      sections: sections,
+      items: deduped,
+      errors: errors,
+      warnings: warnings
+    };
+    render();
+  }
+
+  function payload(dryRun) {
+    return {
+      action: 'import',
+      dry_run: !!dryRun,
+      restaurant_id: $('rid').value.trim(),
+      category: $('cat').value,
+      sections: parsed.sections.map(function (s) { return { name: s.name, display_order: s.order }; }),
+      items: parsed.items.map(function (it) {
+        return {
+          section: it.section,
+          name: it.name,
+          description: it.description === null ? null : String(it.description),
+          price: it.price,
+          photo_url: it.photo_url === null ? null : String(it.photo_url),
+          tags: it.tags,
+          is_popular: it.is_popular,
+          is_available: it.is_available
+        };
+      })
+    };
+  }
+
+  // ── Step 4: preview + upload ───────────────────────────────────────────────
+  // A dry run against the live catalogue tells the operator what will actually
+  // land before they commit — the workbook can be clean and still be a re-run.
+  function ensurePreview(signature) {
+    if (preview && preview.signature === signature) return;
+    preview = { status: 'loading', signature: signature };
+    api(payload(true)).then(function (data) {
+      if (!preview || preview.signature !== signature) return;
+      preview = { status: 'ready', signature: signature, data: data };
+      render();
+    }).catch(function (err) {
+      if (!preview || preview.signature !== signature) return;
+      preview = { status: 'error', signature: signature, message: err.message, details: err.details || [] };
+      render();
+    });
+  }
+
+  function doUpload() {
+    if (upload && upload.status === 'busy') return;
+    upload = { status: 'busy' };
+    render();
+    api(payload(false)).then(function (data) {
+      upload = { status: 'done', data: data };
+      preview = null; // the live catalogue changed
+      render();
+    }).catch(function (err) {
+      upload = { status: 'error', message: err.message, details: err.details || [] };
+      render();
+    });
+  }
+
+  function planHtml(d) {
+    var alreadyThere = d.sections.skipped + d.items.skipped;
+    return '<div class="plan">' +
+      '<div class="new"><b>' + d.sections.inserted + '</b><span>new sections</span></div>' +
+      '<div class="new"><b>' + d.items.inserted + '</b><span>new items</span></div>' +
+      '<div class="skip"><b>' + alreadyThere + '</b><span>already there</span></div>' +
+      '</div>';
+  }
+
+  function landedTable(rows) {
+    var html = '<div class="table-scroll"><table><thead><tr>' +
+      '<th class="n">#</th><th>Section</th><th class="n">Items</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      var noSection = r.name === '(no section)';
+      html += '<tr><td class="n">' + (noSection ? '—' : r.display_order) + '</td>' +
+        '<td' + (noSection ? ' class="unsectioned"' : '') + '>' + esc(r.name) + '</td>' +
+        '<td class="n">' + r.items + '</td></tr>';
+    });
+    return html + '</tbody></table></div>';
+  }
+
+  function diagList(list, cls) {
+    return '<ul class="diag ' + cls + '">' + list.map(function (e) {
+      return '<li><span class="where">' + esc(e.where) + '</span><span>' + esc(e.message) + '</span></li>';
+    }).join('') + '</ul>';
+  }
+
+  function render() {
+    renderStep2();
+
+    var body = $('reviewBody');
+    var chip = $('chip4');
+
+    if (fatal) {
+      setChip(chip, 'Cannot read', 'bad');
+      body.innerHTML = '<div class="banner bad"><b>Couldn\'t read that file.</b> ' + esc(fatal) + '</div>';
+      return;
+    }
+    if (!parsed) {
+      setChip(chip, 'Waiting', '');
+      body.innerHTML = '<div class="banner">Pick a workbook in step 3 and the sections, items and any problems show up here.</div>';
+      return;
+    }
+
+    var p = parsed;
+    var blocked = p.errors.length > 0;
+    var detailsReady = validId() && validCat();
+    var html = '';
+
+    // Summary of the workbook itself
+    html += '<div class="summary">' +
+            '<span class="biz">' +
+            esc(p.name || 'Unnamed business') + '</span>' +
+            '<span class="counts">' + p.sections.length + ' sections · ' + p.items.length + ' items</span>' +
+            '</div>';
+
+    var counts = {};
+    p.sections.forEach(function (s) { counts[s.name] = 0; });
+    var unsectioned = 0;
+    p.items.forEach(function (it) {
+      if (it.section === null) unsectioned++;
+      else counts[it.section] = (counts[it.section] || 0) + 1;
+    });
+    html += '<div class="table-scroll"><table><thead><tr>' +
+            '<th class="n">#</th><th>Section</th><th class="n">Items</th>' +
+            '</tr></thead><tbody>';
+    p.sections.slice().sort(function (a, b) { return a.order - b.order; }).forEach(function (s) {
+      html += '<tr><td class="n">' + s.order + '</td><td>' + esc(s.name) + '</td>' +
+              '<td class="n">' + counts[s.name] + '</td></tr>';
+    });
+    if (unsectioned) {
+      html += '<tr><td class="n">—</td><td class="unsectioned">(no section)</td>' +
+              '<td class="n">' + unsectioned + '</td></tr>';
+    }
+    html += '</tbody></table></div>';
+
+    if (p.errors.length) html += diagList(p.errors, 'errors');
+    if (p.warnings.length) html += diagList(p.warnings, 'warnings');
+
+    // What can happen next
+    if (blocked) {
+      setChip(chip, p.errors.length + (p.errors.length === 1 ? ' error' : ' errors'), 'bad');
+      $('step4').dataset.state = '';
+      html += '<div class="banner bad"><b>Fix the errors above first.</b> ' +
+              'Each one would either fail the insert or put a row somewhere you did not intend.</div>';
+      body.innerHTML = html;
+      return;
+    }
+    if (!detailsReady) {
+      setChip(chip, 'Needs step 2', 'warn');
+      $('step4').dataset.state = '';
+      html += '<div class="banner">The workbook is clean. Pick the business in step 2 and the upload appears here.</div>';
+      body.innerHTML = html;
+      return;
+    }
+
+    var sql = buildSql($('rid').value.trim(), p.name, $('cat').value, p.sections, p.items);
+    var sqlFallback =
+      '<details class="more"><summary>Copy the SQL instead</summary><div class="inner">' +
+      '<p class="hint">The same import as a re-runnable seed for the Supabase SQL editor — for when the function is down or you want to review it first.</p>' +
+      '<div class="code tall"><textarea id="outSql" readonly spellcheck="false"></textarea></div>' +
+      '<button class="btn-quiet" data-copy="outSql">Copy seed SQL</button>' +
+      '</div></details>';
+
+    if (upload && upload.status === 'done') {
+      var d = upload.data;
+      setChip(chip, 'Uploaded', 'ok');
+      $('step4').dataset.state = 'done';
+      html += '<div class="banner ok"><b>Uploaded to ' + esc(d.business.name) + '.</b> ' +
+              d.sections.inserted + ' new ' + (d.sections.inserted === 1 ? 'section' : 'sections') + ', ' +
+              d.items.inserted + ' new ' + (d.items.inserted === 1 ? 'item' : 'items') +
+              (d.sections.skipped + d.items.skipped ? ', ' + (d.sections.skipped + d.items.skipped) + ' already there and left alone.' : '.') +
+              '</div>';
+      html += '<p class="hint">The catalogue now:</p>' + landedTable(d.per_section);
+      html += '<p class="hint">Running the same workbook again would insert nothing. To change a row that is already there, edit it in the app.</p>';
+      body.innerHTML = html;
+      return;
+    }
+
+    if (SQL_ONLY) {
+      setChip(chip, p.warnings.length ? 'Ready · ' + p.warnings.length + ' to check' : 'Ready', p.warnings.length ? 'warn' : 'ok');
+      $('step4').dataset.state = 'done';
+      html += '<div class="code tall"><textarea id="outSql" readonly spellcheck="false"></textarea></div>' +
+              '<button class="btn-primary" data-copy="outSql">Copy seed SQL</button>' +
+              '<p class="hint">Open the Supabase SQL editor on your phone, paste, run. The last statement prints ' +
+              'the item count per section so you can check what landed.</p>';
+      body.innerHTML = html;
+      $('outSql').value = sql;
+      return;
+    }
+
+    if (!connected) {
+      setChip(chip, p.warnings.length ? 'Ready · ' + p.warnings.length + ' to check' : 'Ready', 'warn');
+      $('step4').dataset.state = 'done';
+      html += '<div class="banner">Connect in step 1 to upload from here.</div>' + sqlFallback;
+      body.innerHTML = html;
+      $('outSql').value = sql;
+      return;
+    }
+
+    // Connected, clean, business chosen → live preview then the upload button.
+    var signature = JSON.stringify(payload(true));
+    ensurePreview(signature);
+
+    if (preview.status === 'loading') {
+      setChip(chip, 'Checking live catalogue…', '');
+      html += '<div class="banner">Comparing against what ' + esc(biz ? biz.name : 'this business') + ' already has…</div>';
+    } else if (preview.status === 'error') {
+      setChip(chip, 'Blocked', 'bad');
+      html += '<div class="banner bad"><b>' + esc(preview.message) + '</b>' +
+              (preview.details.length ? '<br>' + preview.details.slice(0, 8).map(esc).join('<br>') : '') + '</div>';
+      html += '<button class="btn-quiet" id="retryPreview">Check again</button>';
+    } else {
+      var pd = preview.data;
+      var nothing = pd.sections.inserted + pd.items.inserted === 0;
+      setChip(chip, nothing ? 'Nothing new' : (p.warnings.length ? 'Ready · ' + p.warnings.length + ' to check' : 'Ready to upload'),
+              nothing ? 'warn' : (p.warnings.length ? 'warn' : 'ok'));
+      html += '<p class="hint">Against the live catalogue of <b>' + esc(pd.business.name) + '</b>:</p>' + planHtml(pd);
+      if (nothing) {
+        html += '<div class="banner warn"><b>Everything in this workbook is already there.</b> Uploading would insert nothing.</div>';
+      } else {
+        var busy = upload && upload.status === 'busy';
+        html += '<button class="btn-primary" id="uploadBtn"' + (busy ? ' disabled' : '') + '>' +
+                (busy ? 'Uploading…' : 'Upload ' + pd.items.inserted + ' ' + (pd.items.inserted === 1 ? 'item' : 'items') +
+                 (pd.sections.inserted ? ' and ' + pd.sections.inserted + ' ' + (pd.sections.inserted === 1 ? 'section' : 'sections') : '') +
+                 ' to ' + esc(pd.business.name)) + '</button>';
+        if (upload && upload.status === 'error') {
+          html += '<div class="banner bad"><b>Upload failed.</b> ' + esc(upload.message) +
+                  (upload.details.length ? '<br>' + upload.details.slice(0, 8).map(esc).join('<br>') : '') +
+                  '<br>It is safe to try again — anything that did land is skipped on the next run.</div>';
+        }
+      }
+    }
+    $('step4').dataset.state = preview.status === 'ready' ? 'done' : '';
+
+    html += sqlFallback;
+    body.innerHTML = html;
+    $('outSql').value = sql;
+    var up = $('uploadBtn');
+    if (up) up.addEventListener('click', doUpload);
+    var retry = $('retryPreview');
+    if (retry) retry.addEventListener('click', function () { preview = null; render(); });
+  }
+
+  // ── Wiring ─────────────────────────────────────────────────────────────────
+  function handleFile(file) {
+    if (!file) return;
+    fatal = null;
+    parsed = null;
+    rawSheets = null;
+    upload = null;
+    $('dropTitle').textContent = file.name;
+    $('dropSub').textContent = 'Reading…';
+    setChip($('chip3'), 'Reading', '');
+    render();
+
+    loadWorkbook(file).then(function (sheets) {
+      rawSheets = sheets;
+      reparse();
+      $('dropSub').textContent = parsed.sections.length + ' sections · ' + parsed.items.length + ' items · tap to choose another';
+      setChip($('chip3'), parsed.items.length + ' items', 'ok');
+      $('step3').dataset.state = 'done';
+    }).catch(function (err) {
+      fatal = err && err.message ? err.message : String(err);
+      $('dropSub').textContent = 'Tap to choose another file';
+      setChip($('chip3'), 'Unreadable', 'bad');
+      $('step3').dataset.state = '';
+      render();
+    });
+  }
+
+  $('file').addEventListener('change', function (e) { handleFile(e.target.files[0]); });
+
+  var drop = $('drop');
+  ['dragenter', 'dragover'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('over'); });
+  });
+  drop.addEventListener('drop', function (e) {
+    if (e.dataTransfer && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+
+  // A remembered key reconnects on load.
+  var stored = SQL_ONLY ? '' : readStoredKey();
+  if (stored) {
+    $('opkey').value = stored;
+    $('rememberKey').checked = true;
+    checkKey();
+  } else {
+    render();
+  }
+})();
+</script>
